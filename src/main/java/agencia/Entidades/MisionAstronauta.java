@@ -1,73 +1,51 @@
-package agencia.Entidades;
+package Entidades;
 
 import jakarta.persistence.*;
 
 /**
- * Entidad que representa la participación de un astronauta en una misión concreta.
- * Es la tabla intermedia de la relación N:M entre Mision y Astronauta.
+ * Entidad que representa la relación entre una misión y un astronauta.
+ * Incluye el rol que desempeña el astronauta dentro de la misión concreta.
+ * Utiliza clave primaria compuesta formada por id_mision e id_astronauta.
  *
- * Al tener un atributo propio (rol_desempenado), no puede modelarse como una
- * simple @ManyToMany, sino que requiere una entidad independiente con clave
- * compuesta embebida (MisionAstronautaId).
- *
- * Tabla: mision_astronauta
- * Clave primaria compuesta: (id_mision, id_astronauta)
+ * @author Carlos Martin
  */
 @Entity
 @Table(name = "mision_astronauta")
 public class MisionAstronauta {
 
-    /**
-     * Clave primaria compuesta: (id_mision, id_astronauta).
-     * Se usa @EmbeddedId junto con la clase MisionAstronautaId.
-     */
     @EmbeddedId
     private MisionAstronautaId id;
 
-    /**
-     * Referencia a la misión. Se usa @MapsId para que JPA sincronice
-     * automáticamente el campo idMision del EmbeddedId con esta FK.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("idMision")
-    @JoinColumn(name = "id_mision", nullable = false)
+    @JoinColumn(name = "id_mision")
     private Mision mision;
 
     /**
-     * Referencia al astronauta. Se usa @MapsId para sincronizar idAstronauta.
+     * Referencia al astronauta. Se mapea con @MapsId sobre el campo idAstronauta
+     * de la clave compuesta. La entidad Astronauta la gestiona otro compañero,
+     * por lo que se declara la FK directamente.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("idAstronauta")
-    @JoinColumn(name = "id_astronauta", nullable = false)
+    @JoinColumn(name = "id_astronauta")
     private Astronauta astronauta;
 
-    /**
-     * Rol que desempeña el astronauta en esta misión concreta
-     * (ej. "Comandante", "Piloto", "Especialista de carga útil").
-     * Obligatorio.
-     */
-    @Column(name = "rol_desempenado", nullable = false, length = 100)
+    @Column(name = "rol_desempenado", length = 100, nullable = false)
     private String rolDesempenado;
 
     // -------------------------------------------------------------------------
     // Constructores
     // -------------------------------------------------------------------------
 
-    public MisionAstronauta() {}
+    public MisionAstronauta() {
+    }
 
-    /**
-     * Constructor de conveniencia para crear una participación completa.
-     *
-     * @param mision         misión en la que participa el astronauta
-     * @param astronauta     astronauta participante
-     * @param rolDesempenado rol que desempeña en esta misión
-     */
     public MisionAstronauta(Mision mision, Astronauta astronauta, String rolDesempenado) {
-        // Construimos el ID compuesto a partir de los IDs de ambas entidades
         this.id = new MisionAstronautaId(mision.getIdMision(), astronauta.getIdAstronauta());
         this.mision = mision;
         this.astronauta = astronauta;
-        setRolDesempenado(rolDesempenado);
+        this.rolDesempenado = rolDesempenado;
     }
 
     // -------------------------------------------------------------------------
@@ -88,9 +66,6 @@ public class MisionAstronauta {
 
     public void setMision(Mision mision) {
         this.mision = mision;
-        // Sincronizamos la parte del ID compuesto correspondiente a la misión
-        if (id == null) id = new MisionAstronautaId();
-        if (mision != null) id.setIdMision(mision.getIdMision());
     }
 
     public Astronauta getAstronauta() {
@@ -99,9 +74,6 @@ public class MisionAstronauta {
 
     public void setAstronauta(Astronauta astronauta) {
         this.astronauta = astronauta;
-        // Sincronizamos la parte del ID compuesto correspondiente al astronauta
-        if (id == null) id = new MisionAstronautaId();
-        if (astronauta != null) id.setIdAstronauta(astronauta.getIdAstronauta());
     }
 
     public String getRolDesempenado() {
@@ -109,10 +81,7 @@ public class MisionAstronauta {
     }
 
     public void setRolDesempenado(String rolDesempenado) {
-        if (rolDesempenado == null || rolDesempenado.isBlank()) {
-            throw new IllegalArgumentException("El rol desempeñado en la misión no puede estar vacío.");
-        }
-        this.rolDesempenado = rolDesempenado.trim();
+        this.rolDesempenado = rolDesempenado;
     }
 
     // -------------------------------------------------------------------------
@@ -121,10 +90,9 @@ public class MisionAstronauta {
 
     @Override
     public String toString() {
-        return "MisionAstronauta{" +
-                "mision=" + (mision != null ? mision.getNombre() : "null") +
-                ", astronauta=" + (astronauta != null ? astronauta.getNombreCompleto() : "null") +
-                ", rolDesempenado='" + rolDesempenado + '\'' +
-                '}';
+        return "MisionAstronauta{"
+                + "id=" + id
+                + ", rolDesempenado='" + rolDesempenado + '\''
+                + '}';
     }
 }

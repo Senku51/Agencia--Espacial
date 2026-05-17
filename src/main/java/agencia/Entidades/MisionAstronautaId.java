@@ -1,35 +1,30 @@
-package agencia.Entidades;
+package Entidades;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Clave primaria compuesta de la tabla intermedia mision_astronauta.
- * Es obligatorio que implemente Serializable y sobrescriba equals() y hashCode()
- * para que JPA pueda gestionar correctamente la identidad de la entidad.
+ * Clase que representa la clave primaria compuesta de la tabla mision_astronauta.
+ * Está formada por el identificador de la misión y el identificador del astronauta.
  *
- * Compuesta por:
- *   - idMision     → FK a misiones
- *   - idAstronauta → FK a astronautas
+ * @author Carlos Martin
  */
 @Embeddable
 public class MisionAstronautaId implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
-    @Column(name = "id_mision", nullable = false)
+    @jakarta.persistence.Column(name = "id_mision")
     private int idMision;
 
-    @Column(name = "id_astronauta", nullable = false)
+    @jakarta.persistence.Column(name = "id_astronauta")
     private int idAstronauta;
 
     // -------------------------------------------------------------------------
     // Constructores
     // -------------------------------------------------------------------------
 
-    public MisionAstronautaId() {}
+    public MisionAstronautaId() {
+    }
 
     public MisionAstronautaId(int idMision, int idAstronauta) {
         this.idMision = idMision;
@@ -57,7 +52,7 @@ public class MisionAstronautaId implements Serializable {
     }
 
     // -------------------------------------------------------------------------
-    // equals y hashCode — imprescindibles para claves compuestas en JPA
+    // equals y hashCode (obligatorios en claves compuestas)
     // -------------------------------------------------------------------------
 
     @Override
@@ -79,9 +74,9 @@ public class MisionAstronautaId implements Serializable {
 
     @Override
     public String toString() {
-        return "MisionAstronautaId{" +
-                "idMision=" + idMision +
-                ", idAstronauta=" + idAstronauta +
-                '}';
+        return "MisionAstronautaId{"
+                + "idMision=" + idMision
+                + ", idAstronauta=" + idAstronauta
+                + '}';
     }
 }

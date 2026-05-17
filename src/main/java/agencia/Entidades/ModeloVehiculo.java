@@ -1,15 +1,13 @@
-package agencia.Entidades;
+package Entidades;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Entidad que representa un modelo de vehículo de lanzamiento.
- * Un mismo modelo puede haber sido utilizado en varios vehículos concretos.
- * Resultado de la normalización a 2FN/3FN: se separó de VehiculoLanzamiento
- * para evitar dependencias parciales.
+ * Un mismo modelo puede haber sido utilizado en varios vehículos a lo largo del tiempo.
+ *
+ * @author Carlos Martin
  */
 @Entity
 @Table(name = "modelos_vehiculos")
@@ -20,42 +18,41 @@ public class ModeloVehiculo {
     @Column(name = "id_modelo")
     private int idModelo;
 
-    @Column(name = "nombre_modelo", nullable = false, length = 100)
+    @Column(name = "nombre_modelo", length = 100, nullable = false)
     private String nombreModelo;
 
-    /**
-     * Capacidad de carga en kilogramos. Debe ser mayor que 0.
-     */
-    @Column(name = "capacidad_carga_kg", nullable = false, precision = 10, scale = 2)
-    private BigDecimal capacidadCargaKg;
+    @Column(name = "capacidad_carga_kg", nullable = false)
+    private double capacidadCargaKg;
 
-    @Column(name = "pais_fabricacion", nullable = false, length = 100)
+    @Column(name = "pais_fabricacion", length = 100)
     private String paisFabricacion;
 
-    /**
-     * Un modelo puede estar asociado a varios vehículos físicos concretos.
-     */
-    @OneToMany(mappedBy = "modeloVehiculo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<VehiculoLanzamiento> vehiculos = new ArrayList<>();
+    @OneToMany(mappedBy = "modeloVehiculo", cascade = CascadeType.ALL)
+    private List<VehiculoLanzamiento> vehiculos;
 
     // -------------------------------------------------------------------------
     // Constructores
     // -------------------------------------------------------------------------
 
-    public ModeloVehiculo() {}
+    public ModeloVehiculo() {
+    }
 
-    public ModeloVehiculo(String nombreModelo, BigDecimal capacidadCargaKg, String paisFabricacion) {
-        setNombreModelo(nombreModelo);
-        setCapacidadCargaKg(capacidadCargaKg);
-        setPaisFabricacion(paisFabricacion);
+    public ModeloVehiculo(String nombreModelo, double capacidadCargaKg, String paisFabricacion) {
+        this.nombreModelo = nombreModelo;
+        this.capacidadCargaKg = capacidadCargaKg;
+        this.paisFabricacion = paisFabricacion;
     }
 
     // -------------------------------------------------------------------------
-    // Getters y Setters con validaciones básicas
+    // Getters y Setters
     // -------------------------------------------------------------------------
 
     public int getIdModelo() {
         return idModelo;
+    }
+
+    public void setIdModelo(int idModelo) {
+        this.idModelo = idModelo;
     }
 
     public String getNombreModelo() {
@@ -63,20 +60,14 @@ public class ModeloVehiculo {
     }
 
     public void setNombreModelo(String nombreModelo) {
-        if (nombreModelo == null || nombreModelo.isBlank()) {
-            throw new IllegalArgumentException("El nombre del modelo no puede estar vacío.");
-        }
-        this.nombreModelo = nombreModelo.trim();
+        this.nombreModelo = nombreModelo;
     }
 
-    public BigDecimal getCapacidadCargaKg() {
+    public double getCapacidadCargaKg() {
         return capacidadCargaKg;
     }
 
-    public void setCapacidadCargaKg(BigDecimal capacidadCargaKg) {
-        if (capacidadCargaKg == null || capacidadCargaKg.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("La capacidad de carga debe ser mayor que 0.");
-        }
+    public void setCapacidadCargaKg(double capacidadCargaKg) {
         this.capacidadCargaKg = capacidadCargaKg;
     }
 
@@ -85,10 +76,7 @@ public class ModeloVehiculo {
     }
 
     public void setPaisFabricacion(String paisFabricacion) {
-        if (paisFabricacion == null || paisFabricacion.isBlank()) {
-            throw new IllegalArgumentException("El país de fabricación no puede estar vacío.");
-        }
-        this.paisFabricacion = paisFabricacion.trim();
+        this.paisFabricacion = paisFabricacion;
     }
 
     public List<VehiculoLanzamiento> getVehiculos() {
@@ -105,11 +93,11 @@ public class ModeloVehiculo {
 
     @Override
     public String toString() {
-        return "ModeloVehiculo{" +
-                "idModelo=" + idModelo +
-                ", nombreModelo='" + nombreModelo + '\'' +
-                ", capacidadCargaKg=" + capacidadCargaKg +
-                ", paisFabricacion='" + paisFabricacion + '\'' +
-                '}';
+        return "ModeloVehiculo{"
+                + "idModelo=" + idModelo
+                + ", nombreModelo='" + nombreModelo + '\''
+                + ", capacidadCargaKg=" + capacidadCargaKg
+                + ", paisFabricacion='" + paisFabricacion + '\''
+                + '}';
     }
 }
